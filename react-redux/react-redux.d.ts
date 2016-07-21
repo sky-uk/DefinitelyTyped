@@ -45,27 +45,29 @@ declare module "react-redux" {
   export function connect(): InferableComponentDecorator;
 
   export function connect<TStateProps, TDispatchProps, TOwnProps>(
-    mapStateToProps: MapStateToProps<TStateProps, TOwnProps>,
-    mapDispatchToProps?: MapDispatchToPropsFunction<TDispatchProps, TOwnProps>|MapDispatchToPropsObject
+    mapStateToProps: FuncOrSelf<MapStateToProps<TStateProps, TOwnProps>>,
+    mapDispatchToProps?: FuncOrSelf<MapDispatchToPropsFunction<TDispatchProps, TOwnProps>|MapDispatchToPropsObject>
   ): ComponentDecorator<TStateProps & TDispatchProps, TOwnProps>;
 
   export function connect<TStateProps, TDispatchProps, TOwnProps>(
-    mapStateToProps: MapStateToProps<TStateProps, TOwnProps>,
-    mapDispatchToProps: MapDispatchToPropsFunction<TDispatchProps, TOwnProps>|MapDispatchToPropsObject,
+    mapStateToProps: FuncOrSelf<MapStateToProps<TStateProps, TOwnProps>>,
+    mapDispatchToProps: FuncOrSelf<MapDispatchToPropsFunction<TDispatchProps, TOwnProps>|MapDispatchToPropsObject>,
     mergeProps: MergeProps<TStateProps, TDispatchProps, TOwnProps>,
     options?: Options
   ): ComponentDecorator<TStateProps & TDispatchProps, TOwnProps>;
+
+  type FuncOrSelf<T> = T | (() => T);
 
   interface MapStateToProps<TStateProps, TOwnProps> {
     (state: any, ownProps?: TOwnProps): TStateProps;
   }
 
   interface MapDispatchToPropsFunction<TDispatchProps, TOwnProps> {
-    (dispatch: Dispatch, ownProps?: TOwnProps): TDispatchProps;
+    (dispatch: Dispatch<any>, ownProps?: TOwnProps): TDispatchProps;
   }
 
   interface MapDispatchToPropsObject {
-    [name: string]: ActionCreator;
+    [name: string]: ActionCreator<any>;
   }
 
   interface MergeProps<TStateProps, TDispatchProps, TOwnProps> {
@@ -92,7 +94,7 @@ declare module "react-redux" {
     /**
      * The single Redux store in your application.
      */
-    store?: Store;
+    store?: Store<any>;
     children?: ReactNode;
   }
 

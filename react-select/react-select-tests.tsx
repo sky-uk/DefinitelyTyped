@@ -1,11 +1,13 @@
+/// <reference path="../lodash/lodash.d.ts" />
 /// <reference path="../react/react.d.ts" />
 /// <reference path="../react/react-dom.d.ts" />
 /// <reference path="./react-select.d.ts" />
 
+import * as _ from "lodash";
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 
-import { Option, MenuRendererProps } from "react-select-props";
+import { Option, ReactSelectProps, ReactAsyncSelectProps, MenuRendererProps } from "react-select-props";
 import Select = require("react-select");
 
 const CustomOption = React.createClass({
@@ -61,6 +63,30 @@ const CustomValue = React.createClass({
     }
 });
 
+const filterOptions = (options: Array<Option>, filter: string, values: Array<Option>) => {
+    // Filter already selected values
+    let filteredOptions = options.filter(option => {
+        return !(_.includes(values, option));
+    });
+
+    // Filter by label
+    if (filter !== undefined && filter != null && filter.length > 0) {
+        filteredOptions = filteredOptions.filter(option => {
+            return RegExp(filter, 'ig').test(option.label);
+        });
+    }
+
+    // Append Addition option
+    if (filteredOptions.length == 0) {
+        filteredOptions.push({
+            label:  `Create: ${filter}`,
+            value:  filter
+        });
+    }
+
+    return filteredOptions;
+};
+
 class SelectTest extends React.Component<React.Props<{}>, {}> {
 
     render() {
@@ -78,42 +104,44 @@ class SelectTest extends React.Component<React.Props<{}>, {}> {
         const onClose = () => { return; };
         const optionRenderer = (option: Option) => <span>{option.label}</span>
 
+        const selectProps: ReactSelectProps = {
+            name: "test-select",
+            className: "test-select",
+            key: "1",
+            options: options,
+            optionRenderer: optionRenderer,
+            allowCreate: true,
+            autofocus: true,
+            autosize: true,
+            clearable: true,
+            escapeClearsValue: true,
+            filterOptions: filterOptions,
+            ignoreAccents: true,
+            joinValues: false,
+            matchPos: "any",
+            matchProp: "any",
+            menuContainerStyle: {},
+            menuRenderer: renderMenu,
+            menuStyle: {},
+            multi: true,
+            onMenuScrollToBottom: () => {},
+            onValueClick: onChange,
+            onOpen: onOpen,
+            onClose: onClose,
+            openAfterFocus: false,
+            optionComponent: CustomOption,
+            required: false,
+            resetValue: "resetValue",
+            scrollMenuIntoView: false,
+            valueKey: "github",
+            labelKey: "name",
+            onChange: onChange,
+            value: options,
+            valueComponent: CustomValue,
+        };
+
         return <div>
-            <Select
-                name="test-select"
-                className="test-select"
-                key="1"
-                options={options}
-                optionRenderer={optionRenderer}
-                allowCreate={true}
-                autofocus={true}
-                autosize={true}
-                clearable={true}
-                escapeClearsValue={true}
-                ignoreAccents={true}
-                joinValues={false}
-                matchPos={"any"}
-                matchProp={"any"}
-                menuContainerStyle={{}}
-                menuRenderer={renderMenu}
-                menuStyle={{}}
-                multi={true}
-                onMenuScrollToBottom={() => {}}
-                onValueClick={onChange}
-                onOpen={onOpen}
-                onClose={onClose}
-                openAfterFocus={false}
-                optionComponent={CustomOption}
-                required={false}
-                resetValue={"resetValue"}
-                scrollMenuIntoView={false}
-                valueKey="github"
-                labelKey="name"
-                onChange={onChange}
-                simpleValue
-                value={options}
-                valueComponent={CustomValue}
-                 />
+            <Select {...selectProps} />
         </div>;
     }
 }
@@ -128,29 +156,32 @@ class SelectAsyncTest extends React.Component<React.Props<{}>, {}> {
         };
         const options: Option[] = [{ label: "Foo", value: "bar" }];
         const onChange = (value: any) => console.log(value);
+
+        const asyncSelectProps: ReactAsyncSelectProps = {
+            name: "test-select",
+            className: "test-select",
+            key: "1",
+            matchPos: "any",
+            matchProp: "any",
+            multi: true,
+            onValueClick: onChange,
+            valueKey: "github",
+            labelKey: "name",
+            onChange: onChange,
+            simpleValue: undefined,
+            value: options,
+            loadOptions: getOptions,
+            cache: {},
+            ignoreAccents: false,
+            ignoreCase: true,
+            isLoading: false,
+            minimumInput: 5,
+            searchPromptText: "search...",
+            searchingText: "searching...",
+        };
+
         return <div>
-            <Select.Async
-                name="test-select"
-                className="test-select"
-                key="1"
-                matchPos={"any"}
-                matchProp={"any"}
-                multi={true}
-                onValueClick={onChange}
-                valueKey="github"
-                labelKey="name"
-                onChange={onChange}
-                simpleValue
-                value={options}
-                loadOptions={getOptions}
-                cache={{}}
-                ignoreAccents={false}
-                ignoreCase={{}}
-                isLoading={false}
-                minimumInput={5}
-                searchPromptText={"search..."}
-                searchingText={"searching..."}
-            />
+            <Select.Async {...asyncSelectProps} />
         </div>;
     }
 
